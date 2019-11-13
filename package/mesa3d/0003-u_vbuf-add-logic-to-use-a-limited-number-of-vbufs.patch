@@ -1,0 +1,62 @@
+From d2175072c633c0893e343a54db41313a2878e7cb Mon Sep 17 00:00:00 2001
+From: "Wladimir J. van der Laan" <laanwj@gmail.com>
+Date: Sat, 11 Jun 2016 21:21:52 +0200
+Subject: [PATCH 3/7] u_vbuf: add logic to use a limited number of vbufs
+
+Make it possible to limit the number of vertex buffers as there exist
+GPUs with less then 32 supported vertex buffers.
+
+Signed-off-by: Wladimir J. van der Laan <laanwj@gmail.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ src/gallium/auxiliary/util/u_vbuf.c | 5 +++++
+ src/gallium/auxiliary/util/u_vbuf.h | 3 +++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/src/gallium/auxiliary/util/u_vbuf.c b/src/gallium/auxiliary/util/u_vbuf.c
+index 4b8dc8e4ae6..a4dd90435fa 100644
+--- a/src/gallium/auxiliary/util/u_vbuf.c
++++ b/src/gallium/auxiliary/util/u_vbuf.c
+@@ -180,6 +180,8 @@ struct u_vbuf {
+    uint32_t incompatible_vb_mask; /* each bit describes a corresp. buffer */
+    /* Which buffer has a non-zero stride. */
+    uint32_t nonzero_stride_vb_mask; /* each bit describes a corresp. buffer */
++   /* Which buffers are allowed (supported by hardware). */
++   uint32_t allowed_vb_mask;
+ };
+ 
+ static void *
+@@ -287,6 +289,8 @@ boolean u_vbuf_get_caps(struct pipe_screen *screen, struct u_vbuf_caps *caps,
+                          PIPE_CAP_VERTEX_ELEMENT_SRC_OFFSET_4BYTE_ALIGNED_ONLY);
+    caps->user_vertex_buffers =
+       screen->get_param(screen, PIPE_CAP_USER_VERTEX_BUFFERS);
++   caps->max_vertex_buffers =
++      screen->get_param(screen, PIPE_CAP_MAX_VERTEX_BUFFERS);
+ 
+    if (!caps->buffer_offset_unaligned ||
+        !caps->buffer_stride_unaligned ||
+@@ -308,6 +312,7 @@ u_vbuf_create(struct pipe_context *pipe, struct u_vbuf_caps *caps)
+    mgr->cso_cache = cso_cache_create();
+    mgr->translate_cache = translate_cache_create();
+    memset(mgr->fallback_vbs, ~0, sizeof(mgr->fallback_vbs));
++   mgr->allowed_vb_mask = u_bit_consecutive(0, mgr->caps.max_vertex_buffers);
+ 
+    mgr->has_signed_vb_offset =
+       pipe->screen->get_param(pipe->screen,
+diff --git a/src/gallium/auxiliary/util/u_vbuf.h b/src/gallium/auxiliary/util/u_vbuf.h
+index 604e8c8b8b0..797fbb7681f 100644
+--- a/src/gallium/auxiliary/util/u_vbuf.h
++++ b/src/gallium/auxiliary/util/u_vbuf.h
+@@ -54,6 +54,9 @@ struct u_vbuf_caps {
+ 
+    /* Whether the driver supports user vertex buffers. */
+    unsigned user_vertex_buffers:1;
++
++   /* Maximum number of vertex buffers */
++   unsigned max_vertex_buffers:6;
+ };
+ 
+ 
+-- 
+2.24.0
+

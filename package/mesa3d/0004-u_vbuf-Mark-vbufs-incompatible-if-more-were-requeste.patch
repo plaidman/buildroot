@@ -1,0 +1,41 @@
+From d5e0fc1695e7e540ddd99cf0c4b4dbfb784ed6dc Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Tue, 19 Nov 2019 21:58:17 +0100
+Subject: [PATCH 4/7] u_vbuf: Mark vbufs incompatible if more were requested
+ than HW supports
+
+More vertex buffers are used than the hardware supports.  In
+principle, we only need to make sure that less vertex buffers are
+used, and mark some of the latter vertex buffers as incompatible.
+For now, mark all vertex buffers as incompatible.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ src/gallium/auxiliary/util/u_vbuf.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/gallium/auxiliary/util/u_vbuf.c b/src/gallium/auxiliary/util/u_vbuf.c
+index a4dd90435fa..006a2c1df31 100644
+--- a/src/gallium/auxiliary/util/u_vbuf.c
++++ b/src/gallium/auxiliary/util/u_vbuf.c
+@@ -788,6 +788,17 @@ u_vbuf_create_vertex_elements(struct u_vbuf *mgr, unsigned count,
+       }
+    }
+ 
++   if (used_buffers & ~mgr->allowed_vb_mask) {
++      /* More vertex buffers are used than the hardware supports.  In
++       * principle, we only need to make sure that less vertex buffers are
++       * used, and mark some of the latter vertex buffers as incompatible.
++       * For now, mark all vertex buffers as incompatible.
++       */
++      ve->incompatible_vb_mask_any = used_buffers;
++      ve->compatible_vb_mask_any = 0;
++      ve->incompatible_elem_mask = u_bit_consecutive(0, count);
++   }
++
+    ve->used_vb_mask = used_buffers;
+    ve->compatible_vb_mask_all = ~ve->incompatible_vb_mask_any & used_buffers;
+    ve->incompatible_vb_mask_all = ~ve->compatible_vb_mask_any & used_buffers;
+-- 
+2.24.0
+

@@ -1,0 +1,26 @@
+From 318f86598cd2e7caac45523086703220d953c5d9 Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Tue, 19 Nov 2019 22:41:18 +0100
+Subject: [PATCH] etnaviv: Set PIPE_CAP_MAX_VERTEX_BUFFERS param to 1
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ src/gallium/drivers/etnaviv/etnaviv_screen.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/gallium/drivers/etnaviv/etnaviv_screen.c b/src/gallium/drivers/etnaviv/etnaviv_screen.c
+index 7c7d1d32e54..2038109c82c 100644
+--- a/src/gallium/drivers/etnaviv/etnaviv_screen.c
++++ b/src/gallium/drivers/etnaviv/etnaviv_screen.c
+@@ -236,6 +236,8 @@ etna_screen_get_param(struct pipe_screen *pscreen, enum pipe_cap param)
+       return 0;
+    case PIPE_CAP_UMA:
+       return 1;
++   case PIPE_CAP_MAX_VERTEX_BUFFERS:
++      return 1;
+    default:
+       return u_pipe_screen_get_param_defaults(pscreen, param);
+    }
+-- 
+2.24.0
+

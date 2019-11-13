@@ -1,0 +1,55 @@
+From 839b5a988166b04296fd149d1b77ea4ea8e24dd8 Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Mon, 11 Nov 2019 02:01:52 +0100
+Subject: [PATCH 1/7] kmsro: Extend to include ingenic-drm
+
+This enables Mesa to work with Ingenic SoCs through the use of the
+ingenic-drm modesetting driver along with the render-only drivers,
+such as Etnaviv on the JZ4770 SoC.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ src/gallium/drivers/kmsro/Android.mk | 1 +
+ src/gallium/targets/dri/meson.build  | 1 +
+ src/gallium/targets/dri/target.c     | 1 +
+ 3 files changed, 3 insertions(+)
+
+diff --git a/src/gallium/drivers/kmsro/Android.mk b/src/gallium/drivers/kmsro/Android.mk
+index 2f637b8bf7a..d355b47c439 100644
+--- a/src/gallium/drivers/kmsro/Android.mk
++++ b/src/gallium/drivers/kmsro/Android.mk
+@@ -40,6 +40,7 @@ GALLIUM_TARGET_DRIVERS += hx8357d
+ GALLIUM_TARGET_DRIVERS += ili9225
+ GALLIUM_TARGET_DRIVERS += ili9341
+ GALLIUM_TARGET_DRIVERS += imx
++GALLIUM_TARGET_DRIVERS += ingenic-drm
+ GALLIUM_TARGET_DRIVERS += stm
+ GALLIUM_TARGET_DRIVERS += mi0283qt
+ GALLIUM_TARGET_DRIVERS += mxsfb-drm
+diff --git a/src/gallium/targets/dri/meson.build b/src/gallium/targets/dri/meson.build
+index 2cfed55d2a7..b0d58686606 100644
+--- a/src/gallium/targets/dri/meson.build
++++ b/src/gallium/targets/dri/meson.build
+@@ -73,6 +73,7 @@ foreach d : [[with_gallium_kmsro, [
+                'ili9225_dri.so',
+                'ili9341_dri.so',
+                'imx-drm_dri.so',
++               'ingenic-drm_dri.so',
+                'meson_dri.so',
+                'mi0283qt_dri.so',
+                'mxsfb-drm_dri.so',
+diff --git a/src/gallium/targets/dri/target.c b/src/gallium/targets/dri/target.c
+index 1295823e4f5..859de9f1727 100644
+--- a/src/gallium/targets/dri/target.c
++++ b/src/gallium/targets/dri/target.c
+@@ -98,6 +98,7 @@ DEFINE_LOADER_DRM_ENTRYPOINT(hx8357d)
+ DEFINE_LOADER_DRM_ENTRYPOINT(ili9225)
+ DEFINE_LOADER_DRM_ENTRYPOINT(ili9341)
+ DEFINE_LOADER_DRM_ENTRYPOINT(imx_drm)
++DEFINE_LOADER_DRM_ENTRYPOINT(ingenic_drm)
+ DEFINE_LOADER_DRM_ENTRYPOINT(meson)
+ DEFINE_LOADER_DRM_ENTRYPOINT(mi0283qt)
+ DEFINE_LOADER_DRM_ENTRYPOINT(mxsfb_drm)
+-- 
+2.24.0
+

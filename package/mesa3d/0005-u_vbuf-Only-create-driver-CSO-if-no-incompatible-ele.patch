@@ -1,0 +1,33 @@
+From efdb3f1389a923e75e9203c508cf1ec5f7006fdd Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Tue, 19 Nov 2019 21:59:07 +0100
+Subject: [PATCH 5/7] u_vbuf: Only create driver CSO if no incompatible
+ elements
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ src/gallium/auxiliary/util/u_vbuf.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/gallium/auxiliary/util/u_vbuf.c b/src/gallium/auxiliary/util/u_vbuf.c
+index 006a2c1df31..6e583c6cc61 100644
+--- a/src/gallium/auxiliary/util/u_vbuf.c
++++ b/src/gallium/auxiliary/util/u_vbuf.c
+@@ -811,8 +811,12 @@ u_vbuf_create_vertex_elements(struct u_vbuf *mgr, unsigned count,
+       }
+    }
+ 
+-   ve->driver_cso =
+-      pipe->create_vertex_elements_state(pipe, count, driver_attribs);
++   /* Only create driver CSO if no incompatible elements */
++   if (!ve->incompatible_elem_mask) {
++      ve->driver_cso =
++         pipe->create_vertex_elements_state(pipe, count, driver_attribs);
++   }
++
+    return ve;
+ }
+ 
+-- 
+2.24.0
+

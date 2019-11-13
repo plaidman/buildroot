@@ -1,0 +1,69 @@
+From aebe7ae85fddab4e7c055dcc2c35fc41f22775ac Mon Sep 17 00:00:00 2001
+From: "Wladimir J. van der Laan" <laanwj@gmail.com>
+Date: Thu, 3 Oct 2013 12:32:12 +0200
+Subject: [PATCH 6/7] u_vbuf: use single vertex buffer if it's not possible to
+ have multiple
+
+Put CONST, VERTEX and INSTANCE attributes into one vertex buffer if
+necessary due to hardware constraints.
+
+Signed-off-by: Wladimir J. van der Laan <laanwj@gmail.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ src/gallium/auxiliary/util/u_vbuf.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/src/gallium/auxiliary/util/u_vbuf.c b/src/gallium/auxiliary/util/u_vbuf.c
+index 6e583c6cc61..8910deb97d1 100644
+--- a/src/gallium/auxiliary/util/u_vbuf.c
++++ b/src/gallium/auxiliary/util/u_vbuf.c
+@@ -541,25 +541,45 @@ u_vbuf_translate_find_free_vb_slots(struct u_vbuf *mgr,
+    uint32_t unused_vb_mask =
+       mgr->ve->incompatible_vb_mask_all | mgr->incompatible_vb_mask |
+       ~mgr->enabled_vb_mask;
++   uint32_t unused_vb_mask_orig;
++   boolean insufficient_buffers = false;
+ 
++   /* No vertex buffers available at all */
++   if(!unused_vb_mask)
++      return FALSE;
+    memset(fallback_vbs, ~0, sizeof(fallback_vbs));
+ 
+    /* Find free slots for each type if needed. */
++   unused_vb_mask_orig = unused_vb_mask;
+    for (type = 0; type < VB_NUM; type++) {
+       if (mask[type]) {
+          uint32_t index;
+ 
+          if (!unused_vb_mask) {
+-            return FALSE;
++            insufficient_buffers = true;
++            break;
+          }
+ 
+          index = ffs(unused_vb_mask) - 1;
+          fallback_vbs[type] = index;
+          unused_vb_mask &= ~(1 << index);
+          /*printf("found slot=%i for type=%i\n", index, type);*/
++         unused_vb_mask &= ~(1<<index);
+       }
+    }
+ 
++   if(insufficient_buffers)
++   {
++      /* not enough vbs for all types supported by the hardware, they will have to share one
++       * buffer */
++      uint32_t index = ffs(unused_vb_mask_orig) - 1;
++      /* When sharing one vertex buffer use per-vertex frequency for everything. */
++      fallback_vbs[VB_VERTEX] = index;
++      mask[VB_VERTEX] = mask[VB_VERTEX] | mask[VB_CONST] | mask[VB_INSTANCE];
++      mask[VB_CONST] = 0;
++      mask[VB_INSTANCE] = 0;
++   }
++
+    for (type = 0; type < VB_NUM; type++) {
+       if (mask[type]) {
+          mgr->dirty_real_vb_mask |= 1 << fallback_vbs[type];
+-- 
+2.24.0
+

@@ -1,0 +1,40 @@
+From 0d80b427ea32e6124f333e7ade572617e3585d89 Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Fri, 22 Nov 2019 23:23:36 +0100
+Subject: [PATCH] u_vbuf: Return true in u_vbuf_get_caps if nb of vbufs is
+ below minimum
+
+Return true in u_vbuf_get_caps if the number of vertex buffers is below
+the minimum required for proper OpenGL 2.0.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ src/gallium/auxiliary/util/u_vbuf.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/gallium/auxiliary/util/u_vbuf.c b/src/gallium/auxiliary/util/u_vbuf.c
+index 8f06c6684b9..3505b2f6658 100644
+--- a/src/gallium/auxiliary/util/u_vbuf.c
++++ b/src/gallium/auxiliary/util/u_vbuf.c
+@@ -91,6 +91,7 @@
+ #include "util/format/u_format.h"
+ #include "util/u_inlines.h"
+ #include "util/u_memory.h"
++#include "util/u_screen.h"
+ #include "util/u_upload_mgr.h"
+ #include "translate/translate.h"
+ #include "translate/translate_cache.h"
+@@ -292,6 +293,10 @@ boolean u_vbuf_get_caps(struct pipe_screen *screen, struct u_vbuf_caps *caps,
+    caps->max_vertex_buffers =
+       screen->get_param(screen, PIPE_CAP_MAX_VERTEX_BUFFERS);
+ 
++   /* OpenGL 2.0 requires a minimum of 16 vertex buffers */
++   if (caps->max_vertex_buffers < 16)
++      fallback = TRUE;
++
+    if (!caps->buffer_offset_unaligned ||
+        !caps->buffer_stride_unaligned ||
+        !caps->velem_src_offset_unaligned ||
+-- 
+2.24.0
+
