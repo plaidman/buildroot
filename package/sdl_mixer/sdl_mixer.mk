@@ -24,10 +24,17 @@ SDL_MIXER_CONF_OPTS = \
 	--with-sdl-prefix=$(STAGING_DIR)/usr \
 	--disable-music-midi \
 	--disable-music-native-midi \
-	--disable-music-timidity-midi \
 	--disable-music-mod \
 	--disable-music-mp3 \
 	--disable-music-flac # configure script fails when cross compiling
+
+ifeq ($(BR2_PACKAGE_SDL_MIXER_MIDI_TIMIDITY),y)
+SDL_MIXER_CONF_OPTS += \
+	--enable-music-midi \
+	--enable-music-timidity-midi
+else
+SDL_MIXER_CONF_OPTS += --disable-music-timidity-midi
+endif
 
 ifeq ($(BR2_PACKAGE_FLUIDSYNTH),y)
 SDL_MIXER_DEPENDENCIES += fluidsynth
