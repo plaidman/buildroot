@@ -1,0 +1,30 @@
+From 1126812f73c1232eaf5d6112cb7222c7171b75e4 Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Thu, 18 Feb 2021 22:44:29 +0000
+Subject: [PATCH 2/2] Remove assert() invalid for ingenic-drm driver
+
+The code asserts that it is not possible to have more than one primary
+plane. But the ingenic-drm driver actually has two mutually exclusive
+primary planes and one overlay plane.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ backend/drm/drm.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/backend/drm/drm.c b/backend/drm/drm.c
+index 40b73925..21c13085 100644
+--- a/backend/drm/drm.c
++++ b/backend/drm/drm.c
+@@ -83,8 +83,6 @@ bool check_drm_features(struct wlr_drm_backend *drm) {
+ static bool add_plane(struct wlr_drm_backend *drm,
+ 		struct wlr_drm_crtc *crtc, drmModePlane *drm_plane,
+ 		uint32_t type, union wlr_drm_plane_props *props) {
+-	assert(!(type == DRM_PLANE_TYPE_PRIMARY && crtc->primary));
+-
+ 	if (type == DRM_PLANE_TYPE_CURSOR && crtc->cursor) {
+ 		return true;
+ 	}
+-- 
+2.30.0
+
