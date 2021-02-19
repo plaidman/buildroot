@@ -1,0 +1,29 @@
+From cd40b765be90f513f0e42b7fa1a5beb2aa74ad45 Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Thu, 18 Feb 2021 21:50:42 +0000
+Subject: [PATCH 1/2] string.h: Make strdup() available if _USE_XOPEN2K8
+
+The strdup() function is present in POSIX 2008.09.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ include/string.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/string.h b/include/string.h
+index 8315203a4..5ffd97150 100644
+--- a/include/string.h
++++ b/include/string.h
+@@ -141,7 +141,8 @@ extern size_t strxfrm_l (char *__dest, const char *__src, size_t __n,
+ libc_hidden_proto(strxfrm_l)
+ #endif
+ 
+-#if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED
++#if defined __USE_SVID || defined __USE_BSD || \
++	defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
+ /* Duplicate S, returning an identical malloc'd string.  */
+ extern char *strdup (const char *__s)
+      __THROW __attribute_malloc__ __nonnull ((1));
+-- 
+2.30.0
+
