@@ -1,0 +1,30 @@
+From 897c4acfcaa746aa18e367f1777f49d0734f46f2 Mon Sep 17 00:00:00 2001
+From: Jan Beich <jbeich@FreeBSD.org>
+Date: Sun, 15 Nov 2020 05:41:47 +0000
+Subject: [PATCH 2/3] seat: chase swaywm/wlroots@e06c9e43afd8
+
+seat.c:453:58: error: incomplete definition of type 'struct wlr_event_touch_down'
+        wlr_cursor_absolute_to_layout_coords(seat->cursor, event->device, event->x, event->y, &lx, &ly);
+                                                           ~~~~~^
+seat.c:450:9: note: forward declaration of 'struct wlr_event_touch_down'
+        struct wlr_event_touch_down *event = data;
+               ^
+---
+ seat.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/seat.c b/seat.c
+index dea384c..08f25a3 100644
+--- a/seat.c
++++ b/seat.c
+@@ -20,6 +20,7 @@
+ #include <wlr/types/wlr_primary_selection.h>
+ #include <wlr/types/wlr_seat.h>
+ #include <wlr/types/wlr_surface.h>
++#include <wlr/types/wlr_touch.h>
+ #include <wlr/types/wlr_xcursor_manager.h>
+ #include <wlr/util/log.h>
+ #if CAGE_HAS_XWAYLAND
+-- 
+2.29.2
+

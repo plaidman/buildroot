@@ -1,0 +1,30 @@
+From 7f82834e872fdcc8fec6210c841f03b2e53ce896 Mon Sep 17 00:00:00 2001
+From: Jan Beich <jbeich@FreeBSD.org>
+Date: Sun, 15 Nov 2020 06:16:26 +0000
+Subject: [PATCH 3/3] seat: silence GCC with wlroots < 0.13 after 88de4fc8b7d4
+
+seat.c: In function 'handle_key_event':
+seat.c:264:60: error: comparison between 'enum wlr_key_state' and 'enum wl_keyboard_key_state' [-Werror=enum-compare]
+  264 |         if ((modifiers & WLR_MODIFIER_ALT) && event->state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+      |                                                            ^~
+---
+ seat.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/seat.c b/seat.c
+index 08f25a3..03ebb25 100644
+--- a/seat.c
++++ b/seat.c
+@@ -261,7 +261,8 @@ handle_key_event(struct wlr_input_device *device, struct cg_seat *seat, void *da
+ 
+ 	bool handled = false;
+ 	uint32_t modifiers = wlr_keyboard_get_modifiers(device->keyboard);
+-	if ((modifiers & WLR_MODIFIER_ALT) && event->state == WL_KEYBOARD_KEY_STATE_PRESSED) {
++	if ((modifiers & WLR_MODIFIER_ALT) &&
++	    (enum wl_keyboard_key_state) event->state == WL_KEYBOARD_KEY_STATE_PRESSED) {
+ 		/* If Alt is held down and this button was pressed, we
+ 		 * attempt to process it as a compositor
+ 		 * keybinding. */
+-- 
+2.29.2
+

@@ -1,0 +1,25 @@
+From acedbdc914ecfadf5a8782ff9cc3368f13343a3a Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Sun, 22 Nov 2020 18:36:59 +0000
+Subject: [PATCH] cage: Define _XOPEN_SOURCE
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/meson.build b/meson.build
+index ce93de0..e9cc7ec 100644
+--- a/meson.build
++++ b/meson.build
+@@ -9,6 +9,7 @@ project('cage', 'c',
+ 
+ add_project_arguments(
+   [
++	'-D_XOPEN_SOURCE=700',
+     '-DWLR_USE_UNSTABLE',
+     '-Wall',
+     '-Wundef',
+-- 
+2.29.2
+
